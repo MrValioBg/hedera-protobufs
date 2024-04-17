@@ -166,7 +166,8 @@ message TokenCreateTransactionBody {
     Duration autoRenewPeriod = 15;
 
     /**
-     * The memo associated with the token (UTF-8 encoding max 100 bytes)
+     * A short description for this token. <br/>
+     * This value, if set, MUST NOT exceed 100 bytes when encoded as UTF-8.
      */
     string memo = 16;
 

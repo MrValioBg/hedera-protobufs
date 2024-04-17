@@ -72,7 +72,8 @@ message GetAccountDetailsQuery {
 message GetAccountDetailsResponse {
     /**
      * The standard response information for queries.<br/>
-     * This includes the values requested in the `QueryHeader`; cost, state proof, both, or neither.
+     * This includes the values requested in the `QueryHeader`
+     * (cost, state proof, both, or neither).
      */
     ResponseHeader header = 1;
 
@@ -190,7 +191,7 @@ message GetAccountDetailsResponse {
 
         /**
          * A short description of this account.<br/>
-         * This value, if set, SHALL be encoded UTF-8 and SHALL NOT exceed 100 bytes when so encoded.
+         * This value, if set, MUST NOT exceed 100 bytes when encoded as UTF-8.
          */
         string memo = 12;
 

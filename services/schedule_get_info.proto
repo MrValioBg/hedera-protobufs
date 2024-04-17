@@ -93,7 +93,8 @@ message ScheduleInfo {
     SchedulableTransactionBody scheduledTransactionBody = 5;
 
     /**
-     * The publicly visible memo of the schedule
+     * A short description for this schedule.
+     * This value, if set, MUST NOT exceed 100 bytes when encoded as UTF-8.
      */
     string memo = 6;
 
@@ -145,7 +146,8 @@ message ScheduleInfo {
 message ScheduleGetInfoResponse {
     /**
      * The standard response information for queries.<br/>
-     * This includes the values requested in the `QueryHeader`; cost, state proof, both, or neither.
+     * This includes the values requested in the `QueryHeader`
+     * (cost, state proof, both, or neither).
      */
     ResponseHeader header = 1;
 

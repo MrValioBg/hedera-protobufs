@@ -38,30 +38,35 @@ import "query_header.proto";
 import "response_header.proto";
 
 /**
- * Request the current bytecode for a smart contract.
+ * A transaction body to request the current bytecode for a smart contract.
  */
 message ContractGetBytecodeQuery {
     /**
-     * Standard information sent with every query operation.<br/>
+     * Standard information sent with every query operation.
+     * <p>
      * This includes the signed payment and what kind of response is requested
      * (cost, state proof, both, or neither).
      */
     QueryHeader header = 1;
 
     /**
-     * A smart contract ID.<br/>
+     * A smart contract ID.
+     * <p>
      * The network SHALL return bytecode for this smart contract, if successful.
      */
     ContractID contractID = 2;
 }
 
 /**
- * Information returned in response to a "get bytecode" query for a smart contract.
+ * Information returned in response to a "get bytecode" query for a
+ * smart contract.
  */
 message ContractGetBytecodeResponse {
     /**
-     * The standard response information for queries.<br/>
-     * This includes the values requested in the `QueryHeader`; cost, state proof, both, or neither.
+     * The standard response information for queries.
+     * <p>
+     * This includes the values requested in the `QueryHeader`
+     * (cost, state proof, both, or neither).
      */
     ResponseHeader header = 1;
 

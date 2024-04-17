@@ -70,7 +70,8 @@ message TransactionRecord {
     TransactionID transactionID = 4;
 
     /**
-     * The memo that was submitted as part of the transaction, decoded to a string.
+     * The memo that was submitted as part of the transaction.<br/>
+     * This value, if set, SHALL NOT exceed 100 bytes when encoded as UTF-8.
      */
     string memo = 5;
 

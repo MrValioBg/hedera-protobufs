@@ -104,7 +104,12 @@ message FileCreateTransactionBody {
     Key newRealmAdminKey = 7;
 
     /**
-     * The memo associated with the file (UTF-8 encoding max 100 bytes)
+     * A short description of this file.<br/>
+     * This value, if set, MUST NOT exceed 100 bytes when encoded as UTF-8.
      */
     string memo = 8;
+
+    // Removed auto_renew_account_id and auto_renew_period
+    // "temporarily" in January 2023.
+    reserved 9,10;
 }

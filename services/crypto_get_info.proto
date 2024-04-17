@@ -41,8 +41,8 @@ import "response_header.proto";
 import "crypto_add_live_hash.proto";
 
 /**
- * Get all the information about an account, including the balance. This does not get the list of
- * account records.
+ * Get all the information about an account, including the balance. This does
+ * not get the list of account records.
  */
 message CryptoGetInfoQuery {
     /**
@@ -64,34 +64,48 @@ message CryptoGetInfoQuery {
 message CryptoGetInfoResponse {
     /**
      * The standard response information for queries.<br/>
-     * This includes the values requested in the `QueryHeader`; cost, state proof, both, or neither.
+     * This includes the values requested in the `QueryHeader`
+     * (cost, state proof, both, or neither).
      */
     ResponseHeader header = 1;
 
     /**
-     * A single Account in the Hedera distributed ledger.
+     * Information describing A single Account in the Hedera distributed ledger.
      *
-     * Each Account has a unique three-part identifier, a Key, and one or more token balances.
+     * Attributes:<br/>
+     * Each Account may have a unique three-part identifier, a Key, and one or
+     * more token balances. Accounts also have an alias, which has multiple
+     * forms, and may be set automatically. Several additional items are
+     * associated with the Account to enable full functionality.
      *
-     * Accounts also have an alias, which has multiple forms, and may be set automatically.
+     * Expiration:<br/>
+     * Accounts, as most items in the network, have an expiration time, recorded
+     * as a `Timestamp`, and must be "renewed" for a small fee at expiration.
+     * This helps to reduce the amount of inactive accounts retained in state.
+     * Another account may be designated to pay any renewal fees and
+     * automatically renew the account for (by default) 30-90 days at a time as
+     * a means to optionally ensure important accounts remain active.
      *
-     * Several additional items are associated with the Account to enable full functionality.
+     * Staking:<br/>
+     * Accounts may participate in securing the network by "staking" the account
+     * balances to a particular network node, and receive a portion of network
+     * fees as a reward. An account may optionally decline these rewards but
+     * still stake its balances.
      *
-     * Accounts, as most items in the network, have an expiration time, recorded as a `Timestamp`,
-     * and must be "renewed" for a small fee at expiration. This helps to reduce the
-     * amount of inactive accounts retained in state. Another account may be designated to pay
-     * any renewal fees and automatically renew the account for (by default) 30-90 days at a time
-     * as a means to optionally ensure important accounts remain active.
-     *
-     * Accounts may participate in securing the network by "staking" the account balances to a
-     * particular network node, and receive a portion of network fees as a reward. An account may
-     * optionally decline these rewards but still stake its balances.
-     *
-     * An account may optionally require that inbound transfer transactions be signed by that
-     * account as receiver (in addition to the sender's signature).
+     * Transfer Restrictions:<br/>
+     * An account may optionally require that inbound transfer transactions be
+     * signed by that account as receiver (in addition to any other signatures
+     * required, including sender).
      *
      */
     message AccountInfo {
+        // Removed auto_renew_account_id "temporarily" in January 2023.
+        // Removed virtual_addresses February 2023 to compress HIP 583/631
+        //     into the single immutable alias field.
+        reserved 23,24;
+        // Removed prior to oldest available history
+        reserved 5;
+
         /**
          * The unique ID of this account.<br/>
          * An account ID, when assigned to this field, SHALL be of the form `shard.realm.number`.
@@ -100,8 +114,8 @@ message CryptoGetInfoResponse {
 
         /**
          * A Solidity ID.<br/>
-         * This SHALL be populated if this account is a smart contract, and SHALL NOT be populated
-         * otherwise.
+         * This SHALL be populated if this account is a smart contract, and
+         * SHALL NOT be populated otherwise.<br/>
          * This SHALL be formatted as a string according to Solidity ID standards.
          */
         string contractAccountID = 2;
@@ -114,9 +128,9 @@ message CryptoGetInfoResponse {
 
         /**
          * Replaced by StakingInfo.<br/>
-         * ID of the account to which this account is staking its balances. If this account is not
-         * currently staking its balances, then this field, if set, SHALL be the sentinel value of
-         * `0.0.0`.
+         * ID of the account to which this account is staking its balances. If
+         * this account is not currently staking its balances, then this field,
+         * if set, SHALL be the sentinel value of `0.0.0`.
          */
         AccountID proxyAccountID = 4 [deprecated = true];
 
@@ -128,9 +142,9 @@ message CryptoGetInfoResponse {
         /**
          * The key to be used to sign transactions from this account, if any.<br/>
          * This key SHALL NOT be set for hollow accounts until the account is finalized.<br/>
-         * This key SHALL be set on all other accounts, except for certain immutable accounts
-         * (0.0.800 and 0.0.801) necessary for network function and otherwise secured by the
-         * governing council.
+         * This key SHALL be set on all other accounts, except for certain
+         * immutable accounts (0.0.800 and 0.0.801) necessary for network
+         * function and otherwise secured by the governing council.
          */
         Key key = 7;
 
@@ -142,64 +156,71 @@ message CryptoGetInfoResponse {
 
         /**
          * Obsolete and unused.<br/>
-         * The threshold amount, in tinybars, at which a record was created for any
-         * transaction that decreased the balance of this account.
+         * The threshold amount, in tinybars, at which a record was created for
+         * any transaction that decreased the balance of this account.
          */
         uint64 generateSendRecordThreshold = 9 [deprecated=true];
 
         /**
          * Obsolete and unused.<br/>
-         * The threshold amount, in tinybars, at which a record was created for any
-         * transaction that increased the balance of this account.
+         * The threshold amount, in tinybars, at which a record was created for
+         * any transaction that increased the balance of this account.
          */
         uint64 generateReceiveRecordThreshold = 10 [deprecated=true];
 
         /**
-         * A boolean indicating that the account requires a receiver signature for inbound token
-         * transfer transactions.<br/>
-         * If this value is `true` then a transaction to transfer tokens to this account SHALL NOT
-         * succeed unless this account has signed the transfer transaction.
+         * A boolean indicating that the account requires a receiver signature
+         * for inbound token transfer transactions.<br/>
+         * If this value is `true` then a transaction to transfer tokens to this
+         * account SHALL NOT succeed unless this account has signed the
+         * transfer transaction.
          */
         bool receiverSigRequired = 11;
 
         /**
          * The current expiration time for this account.
-         * This account SHALL be due standard renewal fees when the network consensus time exceeds
-         * this time.<br/>
-         * If rent and expiration are enabled for the network, and automatic renewal is enabled for
-         * this account, renewal fees SHALL be charged after this time, and, if charged, the
-         * expiration time SHALL be extended for another renewal period.<br/>
-         * This account MAY be expired and removed from state at any point after this time if not
-         * renewed.<br/>
-         * An account holder MAY extend this time by submitting an account update transaction to
-         * modify expiration time, subject to the current maximum expiration time for the network.
+         * This account SHALL be due standard renewal fees when the network
+         * consensus time exceeds this time.<br/>
+         * If rent and expiration are enabled for the network, and automatic
+         * renewal is enabled for this account, renewal fees SHALL be charged
+         * after this time, and, if charged, the expiration time SHALL be
+         * extended for another renewal period.<br/>
+         * This account MAY be expired and removed from state at any point
+         * after this time if not renewed.<br/>
+         * An account holder MAY extend this time by submitting an account
+         * update transaction to modify expiration time, subject to the current
+         * maximum expiration time for the network.
          */
         Timestamp expirationTime = 12;
 
         /**
-         * The number of seconds the network SHALL use to extend the account's expiration, if funds
-         * are available during automatic renewal processing.<br/>
-         * This SHALL NOT apply if the account is already deleted upon expiration.<br/>
-         * If insufficient funds are available for automatic renewal, the account SHALL be renewed
-         * for as long as possible, given available funds.
+         * The number of seconds the network SHALL use to extend the account's
+         * expiration, if funds are available during automatic
+         * renewal processing.<br/>
+         * This SHALL NOT apply if the account is already deleted upon
+         * expiration.<br/>
+         * If insufficient funds are available for automatic renewal, the
+         * account SHALL be renewed for as long as possible, given available
+         * funds.
          */
         Duration autoRenewPeriod = 13;
 
         /**
-         * All of the livehashes attached to the account (each of which is a hash along with the
-         * keys that authorized it and can delete it)
+         * All of the livehashes attached to the account (each of which is a
+         * hash along with the keys that authorized it and can delete it)
          */
         repeated LiveHash liveHashes = 14;
 
         /**
-         * As of `HIP-367`, which enabled unlimited token associations, the potential scale
-         * for this value requires that users consult a mirror node for this information.
+         * As of `HIP-367`, which enabled unlimited token associations, the
+         * potential scale for this value requires that users consult a mirror
+         * node for this information.
          */
         repeated TokenRelationship tokenRelationships = 15 [deprecated = true];
 
         /**
          * A short description of this account.<br/>
-         * This value, if set, SHALL be encoded UTF-8 and SHALL NOT exceed 100 bytes when so encoded.
+         * This value, if set, MUST NOT exceed 100 bytes when encoded as UTF-8.
          */
         string memo = 16;
 
@@ -210,8 +231,9 @@ message CryptoGetInfoResponse {
 
         /**
          * The maximum number of tokens that can be auto-associated with the account.<br/>
-         * If this is less than or equal to `used_auto_associations` (or 0), then this account
-         * MUST manually associate with a token before transacting in that token.<br/>
+         * If this is less than or equal to `used_auto_associations` (or 0),
+         * then this account MUST manually associate with a token before
+         * transacting in that token.<br/>
          * Following HIP-904 This value may also be `-1` to indicate no limit.<br/>
          * This value MUST NOT be less than `-1`.
          */
@@ -219,9 +241,10 @@ message CryptoGetInfoResponse {
 
         /**
          * An account EVM alias.<br/>
-         * This is a value used in some contexts to reference an account when the tripartite
-         * account identifier is not available.<br/>
-         * This field, when set to a non-default value, is immutable and SHALL NOT be changed.
+         * This is a value used in some contexts to reference an account when
+         * the tripartite account identifier is not available.<br/>
+         * This field, when set to a non-default value, is immutable and
+         * SHALL NOT be changed.
          */
         bytes alias = 19;
 

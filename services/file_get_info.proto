@@ -64,7 +64,8 @@ message FileGetInfoQuery {
 message FileGetInfoResponse {
     /**
      * The standard response information for queries.<br/>
-     * This includes the values requested in the `QueryHeader`; cost, state proof, both, or neither.
+     * This includes the values requested in the `QueryHeader`
+     * (cost, state proof, both, or neither).
      */
     ResponseHeader header = 1;
 
@@ -96,7 +97,8 @@ message FileGetInfoResponse {
         KeyList keys = 5;
 
         /**
-         * The memo associated with the file
+         * A short description for this file.<br/>
+         * This value, if set, MUST NOT exceed 100 bytes when encoded as UTF-8.
          */
         string memo = 6;
 
@@ -104,6 +106,10 @@ message FileGetInfoResponse {
          * The ledger ID the response was returned from; please see <a href="https://github.com/hashgraph/hedera-improvement-proposal/blob/master/HIP/hip-198.md">HIP-198</a> for the network-specific IDs.
          */
         bytes ledger_id = 7;
+
+        // Removed auto_renew_account_id and auto_renew_period
+        // "temporarily" in January 2023.
+        reserved 8,9;
     }
 
     /**

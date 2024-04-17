@@ -24,8 +24,6 @@ option java_package = "com.hederahashgraph.api.proto.java";
 // <<<pbj.java_package = "com.hedera.hapi.node.addressbook">>> This comment is special code for setting PBJ Compiler java package
 option java_multiple_files = true;
 
-import "basic_types.proto";
-
 /**
  * Delete the given node. After deletion, it will be marked as deleted.
  * But information about it will continue to exist for a year.

@@ -129,7 +129,8 @@ message TransactionBody {
   bool generateRecord = 5 [deprecated = true];
 
   /**
-   * Any notes or descriptions that should be put into the record (max length 100)
+   * A short description for this transaction.<br/>
+   * This value, if set, MUST NOT exceed 100 bytes when encoded as UTF-8.
    */
   string memo = 6;
 

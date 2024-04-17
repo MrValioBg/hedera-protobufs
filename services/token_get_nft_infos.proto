@@ -83,7 +83,8 @@ message TokenGetNftInfosQuery {
 message TokenGetNftInfosResponse {
     /**
      * The standard response information for queries.<br/>
-     * This includes the values requested in the `QueryHeader`; cost, state proof, both, or neither.
+     * This includes the values requested in the `QueryHeader`
+     * (cost, state proof, both, or neither).
      */
     ResponseHeader header = 1;
 

@@ -92,8 +92,8 @@ message ScheduleCreateTransactionBody {
   SchedulableTransactionBody scheduledTransactionBody = 1;
 
   /**
-   * An optional memo with a UTF-8 encoding of no more than 100 bytes which does not contain the
-   * zero byte
+   * A short description of the schedule.<br/>
+   * This value, if set, MUST NOT exceed 100 bytes when encoded as UTF-8.
    */
   string memo = 2;
 

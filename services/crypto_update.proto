@@ -165,4 +165,9 @@ message CryptoUpdateTransactionBody {
      * If true, the account declines receiving a staking reward. The default value is false.
      */
     google.protobuf.BoolValue decline_reward = 18;
+
+    // Removed auto_renew_account_id "temporarily" January 2023.
+    // Removed virtual_address_update (20,21) February 2023 to compress
+    //     HIP 583/631 into the single immutable alias field.
+    reserved 19,20,21;
 }

@@ -159,7 +159,8 @@ message TokenInfo {
     Timestamp expiry = 17;
 
     /**
-     * The memo associated with the token
+     * A short description of this token.<br/>
+     * This value, if set, MUST NOT exceed 100 bytes when encoded as UTF-8.
      */
     string memo = 18;
 
@@ -224,7 +225,8 @@ message TokenInfo {
 message TokenGetInfoResponse {
     /**
      * The standard response information for queries.<br/>
-     * This includes the values requested in the `QueryHeader`; cost, state proof, both, or neither.
+     * This includes the values requested in the `QueryHeader`
+     * (cost, state proof, both, or neither).
      */
     ResponseHeader header = 1;
 
