@@ -94,7 +94,7 @@ import "transaction.proto";
  *   `updateNode` transaction.
  *    - If the node operator creates the transaction
  *       - The node operator MUST sign this transaction with the active `key`
- *         for the account assigned as the "node account".
+ *         for the account assigned as the current "node account".
  *       - If the transaction changes the value of the "node account" the
  *         node operator MUST _also_ sign this transaction with the active `key`
  *         for the account to be assigned as the new "node account".
@@ -128,7 +128,7 @@ service AddressBookService {
      * This transaction, once complete, SHALL add a new consensus node to the
      * network state.<br/>
      * The new consensus node SHALL remain in state, but SHALL NOT participate
-     * in network consensus until the network updates the consensus roster.
+     * in network consensus until the network updates the network configuration.
      * <p>
      * Hedera governing council authorization is REQUIRED for this transaction.
      */
@@ -139,7 +139,7 @@ service AddressBookService {
      * book.
      * <p>
      * This transaction, once complete, SHALL remove the identified consensus
-     * node from the network.
+     * node from the network state.
      * <p>
      * Hedera governing council authorization is REQUIRED for this transaction.
      */
@@ -150,7 +150,7 @@ service AddressBookService {
      * address book.
      * <p>
      * This transaction, once complete, SHALL modify the identified consensus
-     * node as requested.
+     * node state as requested.
      * <p>
      * This transaction MAY be authorized by either the node operator OR the
      * Hedera governing council.
@@ -159,7 +159,7 @@ service AddressBookService {
 
     /**
      * A transaction to query the current state of a consensus node in the
-     * network address book.
+     * network address book state.
      * <p>
      * Hedera governing council authorization is REQUIRED for this transaction.
      */

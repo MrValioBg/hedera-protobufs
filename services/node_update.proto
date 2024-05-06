@@ -1,3 +1,12 @@
+/**
+ * # Node Update
+ * Messages to modify a consensus node in the network address book.
+ *
+ * ### Keywords
+ * The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+ * "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+ * document are to be interpreted as described in [RFC2119](https://www.ietf.org/rfc/rfc2119).
+ */
 syntax = "proto3";
 
 package com.hedera.hapi.node.addressbook;
@@ -31,11 +40,11 @@ import "basic_types.proto";
  * - This transaction SHALL enable the node operator, as identified by the
  *   node account, to modify operational attributes of the node.
  * - This transaction MUST be signed by the active `key` for the current node
- *   account.
+ *   account or by the Hedera governing council.
  * - This transaction SHALL NOT change any field that is not set (is null) in
  *   this transaction body.
  * - This SHALL create a pending update to the node, but the change SHALL NOT
- *   be applied to the active configuration.
+ *   be immediately applied to the active configuration.
  * - All pending node updates SHALL be applied to the active network
  *   configuration during the next `freeze` transaction with the field
  *   `freeze_type` set to `PREPARE_UPGRADE`.

@@ -46,7 +46,8 @@ option java_multiple_files = true;
  */
 message Node {
     /**
-     * A consensus node identifier.<br/>
+     * A consensus node identifier.
+     * <p>
      * Node identifiers SHALL be unique _within_ a shard and realm,
      * but a node SHALL NOT, ever, serve multiple shards or realms,
      * therefore the node identifier MAY be repeated _between_ shards and realms.
@@ -54,7 +55,8 @@ message Node {
     uint64 node_id = 1;
 
     /**
-     * An account identifier.<br/>
+     * An account identifier.
+     * <p>
      * This account MUST be owned by the entity responsible for the node.<br/>
      * This account SHALL be charged transaction fees for any transactions that
      * are submitted to the network by this node and fail due diligence checks.
@@ -62,13 +64,15 @@ message Node {
     proto.AccountID account_id = 2;
 
     /**
-     * A short description of the node.<br/>
+     * A short description of the node.
+     * <p>
      * This value, if set, MUST NOT exceed 100 bytes when encoded as UTF-8.
      */
     string description = 3;
 
     /**
-     * A list of service endpoints.<br/>
+     * A list of service endpoints.
+     * <p>
      * These endpoints SHALL specify address and port.<br/>
      * These endpoints SHALL NOT specify a DNS name.<br/>
      * This list SHALL NOT be empty.<br/>
@@ -80,7 +84,8 @@ message Node {
     repeated proto.ServiceEndpoint gossip_endpoint = 4;
 
     /**
-     * A list of service endpoints.<br/>
+     * A list of service endpoints for gRPC calls.
+     * <p>
      * These endpoints SHALL represent the published endpoints to which clients
      * may submit transactions.<br/>
      * These endpoints SHALL specify address and port.<br/>
@@ -91,30 +96,32 @@ message Node {
     repeated proto.ServiceEndpoint service_endpoint = 5;
 
     /**
-     * A certificate used to sign gossip events.<br/>
+     * A certificate used to sign gossip events.
+     * <p>
      * This value SHALL be a certificate of a type permitted for gossip
      * signatures.<br/>
-     * The value presented SHALL be a UTF-8 NFKD encoding of the TLS
-     * certificate.<br/>
-     * The certificate encoded SHALL be in PEM format.<br/>
+     * This value SHALL be a UTF-8 NFKD encoding of the
+     * certificate presented in PEM format.<br/>
      * This field is REQUIRED and MUST NOT be empty.
      */
     bytes gossip_ca_certificate = 6;
 
     /**
-     * A hash of the node gRPC certificate.<br/>
+     * A hash of the node gRPC certificate.
+     * <p>
      * This value MAY be used to verify the certificate presented by the node
      * during TLS negotiation for gRPC.<br/>
      * This value MUST be a SHA-384 hash.<br/>
-     * The value to be hashed MUST be a UTF-8 NFKD encoding of the TLS
-     * certificate.<br/>
-     * The certificate to be encoded MUST be in PEM format.<br/>
+     * The TLS certificate to be hashed SHALL first be in PEM format and SHALL
+     * be encoded with UTF-8 NFKD encoding to a stream of bytes provided to
+     * the hash algorithm.<br/>
      * This field is OPTIONAL.
      */
     bytes grpc_certificate_hash = 7;
 
     /**
-     * A consensus weight.<br/>
+     * A consensus weight.
+     * <p>
      * Each node SHALL have a weight in consensus calculations.<br/>
      * The consensus weight of a node SHALL be calculated based on the amount
      * of HBAR staked to that node.<br/>
@@ -165,7 +172,8 @@ enum NodeStatus {
 
     /**
      * A consensus node in this state is newly created but not yet active on
-     * the network.<br/>
+     * the network.
+     * <p>
      * The node SHALL become active following the next `freeze` transaction
      * with the field `freeze_type` set to `PREPARE_UPGRADE`.
      */
@@ -173,7 +181,8 @@ enum NodeStatus {
 
     /**
      * A consensus node in this state is subject to a request to delete
-     * that node.<br/>
+     * that node.
+     * <p>
      * The node SHALL be removed from the network following the next
      * `freeze` transaction with the field `freeze_type` set to
      * `PREPARE_UPGRADE`.
