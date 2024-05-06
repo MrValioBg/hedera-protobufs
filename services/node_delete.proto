@@ -42,7 +42,8 @@ option java_multiple_files = true;
  */
 message NodeDeleteTransactionBody {
     /**
-     * A consensus node identifier in the network state.<br/>
+     * A consensus node identifier in the network state.
+     * <p>
      * The node identified MUST exist in the network address book.<br/>
      * The node identified MUST NOT be deleted.<br/>
      * This value is REQUIRED.
