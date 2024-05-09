@@ -1,12 +1,3 @@
-/**
- * # Node Delete
- * Messages to remove a consensus node from the network address book.
- *
- * ### Keywords
- * The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
- * "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
- * document are to be interpreted as described in [RFC2119](https://www.ietf.org/rfc/rfc2119).
- */
 syntax = "proto3";
 
 package com.hedera.hapi.node.addressbook;
@@ -42,8 +33,8 @@ option java_multiple_files = true;
  * - All address book entries pending deletion SHALL be removed from the
  *   active network configuration during the next `freeze` transaction with
  *   the field `freeze_type` set to `PREPARE_UPGRADE`.<br/>
- * - A deleted address book node SHALL be retained in the "deleted" state.
- * - A deleted address book node SHALL NOT be reused.
+ * - A deleted address book node SHALL be removed entirely from network state.
+ * - A deleted address book node identifier SHALL NOT be reused.
  *
  * ### Record Stream Effects
  * Upon completion the "deleted" `node_id` SHALL be in the transaction

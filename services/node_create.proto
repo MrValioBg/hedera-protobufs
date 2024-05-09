@@ -1,12 +1,3 @@
-/**
- * # Node Create
- * Messages to add a consensus node to the network address book.
- *
- * ### Keywords
- * The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
- * "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
- * document are to be interpreted as described in [RFC2119](https://www.ietf.org/rfc/rfc2119).
- */
 syntax = "proto3";
 
 package com.hedera.hapi.node.addressbook;
@@ -60,11 +51,11 @@ message NodeCreateTransactionBody {
     /**
      * A Node account identifier.
      * <p>
-     * This field is REQUIRED.<br/>
      * This account identifier MUST be in the "account number" form.<br/>
      * This account identifier MUST NOT use the alias field.<br/>
      * If the identified account does not exist, this transaction SHALL fail.<br/>
-     * Multiple nodes MAY share the same node account.
+     * Multiple nodes MAY share the same node account.<br/>
+     * This field is REQUIRED.
      */
     proto.AccountID account_id = 1;
 
@@ -72,7 +63,7 @@ message NodeCreateTransactionBody {
      * A short description of the node.
      * <p>
      * This value, if set, MUST NOT exceed 100 bytes when encoded as UTF-8.<br/>
-     * This value is OPTIONAL.
+     * This field is OPTIONAL.
      */
     string description = 2;
 
@@ -81,13 +72,25 @@ message NodeCreateTransactionBody {
      * <p>
      * These endpoints SHALL represent the published endpoints to which other
      * consensus nodes may _gossip_ transactions.<br/>
-     * These endpoints MUST specify address and port.<br/>
-     * These endpoints MUST NOT specify a DNS name.<br/>
      * This list MUST NOT be empty.<br/>
      * This list MUST NOT contain more than `10` entries.<br/>
-     * The first entry in this list SHALL be the endpoint published to all
-     * consensus nodes.<br/>
+     * The first two entries in this list SHALL be the endpoints published to
+     * all consensus nodes.<br/>
      * All other entries SHALL be reserved for future use.
+     * <p>
+     * Each network may have additional requirements for these endpoints.
+     * A client MUST check network-specific documentation for those
+     * details.<br/>
+     * <blockquote>Example<blockquote>
+     * Hedera Mainnet _requires_ that address be specified, and does not
+     * permit DNS name (FQDN) to be specified.<br/>
+     * Mainnet also requires that the first entry be an "internal" IP
+     * address and the second entry be an "external" IP address.
+     * </blockquote>
+     * <blockquote>
+     * Solo, however, _requires_ DNS name (FQDN) but also permits
+     * address.
+     * </blockquote></blockquote>
      */
     repeated proto.ServiceEndpoint gossip_endpoint = 3;
 
@@ -96,10 +99,14 @@ message NodeCreateTransactionBody {
      * <p>
      * These endpoints SHALL represent the published gRPC endpoints to which
      * clients may submit transactions.<br/>
-     * These endpoints MUST specify address and port.<br/>
+     * These endpoints SHOULD specify address and port.<br/>
      * These endpoints MAY specify a DNS name.<br/>
      * This list MUST NOT be empty.<br/>
      * This list MUST NOT contain more than `8` entries.
+     * <p>
+     * Each network may have additional requirements for these endpoints.
+     * A client MUST check network-specific documentation for those
+     * details.
      */
     repeated proto.ServiceEndpoint service_endpoint = 4;
 
@@ -108,8 +115,7 @@ message NodeCreateTransactionBody {
      * <p>
      * This value MUST be a certificate of a type permitted for gossip
      * signatures.<br/>
-     * The value presented MUST be a UTF-8 NFKD encoding of the
-     * certificate presented in PEM format.<br/>
+     * This value MUST be the DER encoding of the certificate presented.<br/>
      * This field is REQUIRED and MUST NOT be empty.
      */
     bytes gossip_ca_certificate = 5;

@@ -1,12 +1,3 @@
-/**
- * # Node
- * Messages that describe a consensus node in network state.
- *
- * ### Keywords
- * The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
- * "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
- * document are to be interpreted as described in [RFC2119](https://www.ietf.org/rfc/rfc2119).
- */
 syntax = "proto3";
 
 package com.hedera.hapi.node.state.addressbook;
@@ -71,15 +62,30 @@ message Node {
     string description = 3;
 
     /**
-     * A list of service endpoints.
+     * A list of service endpoints for gossip.
      * <p>
-     * These endpoints SHALL specify address and port.<br/>
-     * These endpoints SHALL NOT specify a DNS name.<br/>
+     * These endpoints SHALL represent the published endpoints to which other
+     * consensus nodes may _gossip_ transactions.<br/>
+     * These endpoints SHOULD NOT specify both address and DNS name.<br/>
      * This list SHALL NOT be empty.<br/>
      * This list SHALL NOT contain more than `10` entries.<br/>
-     * The first entry in this list SHALL be the endpoint published to all
-     * consensus nodes.<br/>
+     * The first two entries in this list SHALL be the endpoints published to
+     * all consensus nodes.<br/>
      * All other entries SHALL be reserved for future use.
+     * <p>
+     * Each network may have additional requirements for these endpoints.
+     * A client MUST check network-specific documentation for those
+     * details.<br/>
+     * <blockquote>Example<blockquote>
+     * Hedera Mainnet _requires_ that address be specified, and does not
+     * permit DNS name (FQDN) to be specified.<br/>
+     * Mainnet also requires that the first entry be an "internal" IP
+     * address and the second entry be an "external" IP address.
+     * </blockquote>
+     * <blockquote>
+     * Solo, however, _requires_ DNS name (FQDN) but also permits
+     * address.
+     * </blockquote></blockquote>
      */
     repeated proto.ServiceEndpoint gossip_endpoint = 4;
 
@@ -88,10 +94,15 @@ message Node {
      * <p>
      * These endpoints SHALL represent the published endpoints to which clients
      * may submit transactions.<br/>
-     * These endpoints SHALL specify address and port.<br/>
-     * These endpoints SHALL NOT specify DNS name.<br/>
+     * These endpoints SHOULD specify address and port.<br/>
+     * These endpoints MAY specify a DNS name.<br/>
+     * These endpoints SHOULD NOT specify both address and DNS name.<br/>
      * This list SHALL NOT be empty.<br/>
      * This list SHALL NOT contain more than `8` entries.
+     * <p>
+     * Each network may have additional requirements for these endpoints.
+     * A client MUST check network-specific documentation for those
+     * details.
      */
     repeated proto.ServiceEndpoint service_endpoint = 5;
 
@@ -100,8 +111,7 @@ message Node {
      * <p>
      * This value SHALL be a certificate of a type permitted for gossip
      * signatures.<br/>
-     * This value SHALL be a UTF-8 NFKD encoding of the
-     * certificate presented in PEM format.<br/>
+     * This value SHALL be the DER encoding of the certificate presented.<br/>
      * This field is REQUIRED and MUST NOT be empty.
      */
     bytes gossip_ca_certificate = 6;
@@ -154,26 +164,36 @@ message Node {
  *   `PENDING_ADDITION` SHALL be added to the live address book, the status
  *   SHALL change to `IN_CONSENSUS` and these new nodes SHALL begin to operate
  *   as full consensus nodes.
+ * - If a `updateNode` transaction is processed for a consensus node, the node
+ *   status SHALL change to the `PENDING_UPDATE` state (unless the status was
+ *   `PENDING_ADDITION`, see below).
+ * - Following the next `network upgrade` every node with the status
+ *   `PENDING_UPDATE` SHALL be modified in network configuration, the status
+ *   SHALL change to `IN_CONSENSUS` and these modified nodes SHALL continue
+ *   to operate as full consensus nodes.
  * - If a `deleteNode` transaction is processed for a consensus node, the node
  *   status SHALL change to the `PENDING_DELETION` state.
  * - Following the next `network upgrade` every node with the status
- *   `PENDING_DELETE` SHALL be removed from the live address book, the status
- *   SHALL change to `DELETED`, and the node SHALL no longer participate in
- *   network consensus.
- * - The `DELETED` state SHALL be a terminal state. Node identifiers SHALL NOT
- *   be re-used and SHALL NOT be "revived".
+ *   `PENDING_DELETE` SHALL be removed from the live address book, and
+ *   SHALL be removed from state entirely. The node SHALL no longer
+ *   participate in network consensus.
+ * - A deleted node SHALL not be present in state. Node identifiers SHALL NOT
+ *   be re-used and a deleted node CANNOT be "revived".
  */
 enum NodeStatus {
     /**
-     * A consensus node in this state is deleted and permanently removed
-     * from the network.
+     * A consensus node in this state is active on the network and
+     * participating in network consensus.
      */
-    DELETED = 0;
+    IN_CONSENSUS = 0;
 
     /**
      * A consensus node in this state is newly created but not yet active on
      * the network.
      * <p>
+     * Any request to update a node in this state SHALL fail, unless signed
+     * by the governing council, and the node SHALL remain in this
+     * state if updated.<br/>
      * The node SHALL become active following the next `freeze` transaction
      * with the field `freeze_type` set to `PREPARE_UPGRADE`.
      */
@@ -183,6 +203,8 @@ enum NodeStatus {
      * A consensus node in this state is subject to a request to delete
      * that node.
      * <p>
+     * Any request to update a node in this state SHALL fail, unless signed
+     * by the governing council.<br/>
      * The node SHALL be removed from the network following the next
      * `freeze` transaction with the field `freeze_type` set to
      * `PREPARE_UPGRADE`.
@@ -190,8 +212,15 @@ enum NodeStatus {
     PENDING_DELETION = 2;
 
     /**
-     * A consensus node in this state is active on the network and
-     * participating in network consensus.
+     * A consensus node in this state is subject to a request to update
+     * that node.<br/>
+     * A consensus node in this state MAY be active on the network, and
+     * participating in consensus, if it was active prior to the request to
+     * update that node.
+     * <p>
+     * The node SHALL be modified in the network configuration following the
+     * next `freeze` transaction with the field `freeze_type` set to
+     * `PREPARE_UPGRADE`.
      */
-    IN_CONSENSUS = 3;
+    PENDING_UPDATE = 3;
 }

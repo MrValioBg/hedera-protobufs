@@ -1,12 +1,3 @@
-/**
- * # Node Update
- * Messages to modify a consensus node in the network address book.
- *
- * ### Keywords
- * The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
- * "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
- * document are to be interpreted as described in [RFC2119](https://www.ietf.org/rfc/rfc2119).
- */
 syntax = "proto3";
 
 package com.hedera.hapi.node.addressbook;
@@ -83,15 +74,30 @@ message NodeUpdateTransactionBody {
     /**
      * A list of service endpoints for gossip.
      * <p>
+     * If set, this list MUST meet the following requirements.
+     * <hr/>
      * These endpoints SHALL represent the published endpoints to which other
      * consensus nodes may _gossip_ transactions.<br/>
-     * These endpoints MUST specify address and port.<br/>
-     * These endpoints MUST NOT specify a DNS name.<br/>
+     * These endpoints SHOULD NOT specify both address and DNS name.<br/>
      * This list MUST NOT be empty.<br/>
      * This list MUST NOT contain more than `10` entries.<br/>
-     * The first entry in this list SHALL be the endpoint published to all
-     * consensus nodes.<br/>
+     * The first two entries in this list SHALL be the endpoints published to
+     * all consensus nodes.<br/>
      * All other entries SHALL be reserved for future use.
+     * <p>
+     * Each network may have additional requirements for these endpoints.
+     * A client MUST check network-specific documentation for those
+     * details.<br/>
+     * <blockquote>Example<blockquote>
+     * Hedera Mainnet _requires_ that address be specified, and does not
+     * permit DNS name (FQDN) to be specified.<br/>
+     * Mainnet also requires that the first entry be an "internal" IP
+     * address and the second entry be an "external" IP address.
+     * </blockquote>
+     * <blockquote>
+     * Solo, however, _requires_ DNS name (FQDN) but also permits
+     * address.
+     * </blockquote></blockquote>
      * <p>
      * If set, the new list SHALL replace the existing list.
      */
@@ -100,12 +106,19 @@ message NodeUpdateTransactionBody {
     /**
      * A list of service endpoints for gRPC calls.
      * <p>
+     * If set, this list MUST meet the following requirements.
+     * <hr/>
      * These endpoints SHALL represent the published endpoints to which clients
      * may submit transactions.<br/>
-     * These endpoints MUST specify address and port.<br/>
-     * These endpoints MAY specify DNS name.<br/>
+     * These endpoints SHOULD specify address and port.<br/>
+     * These endpoints MAY specify a DNS name.<br/>
+     * These endpoints SHOULD NOT specify both address and DNS name.<br/>
      * This list MUST NOT be empty.<br/>
      * This list MUST NOT contain more than `8` entries.
+     * <p>
+     * Each network may have additional requirements for these endpoints.
+     * A client MUST check network-specific documentation for those
+     * details.
      * <p>
      * If set, the new list SHALL replace the existing list.
      */
@@ -116,8 +129,7 @@ message NodeUpdateTransactionBody {
      * <p>
      * This value MUST be a certificate of a type permitted for gossip
      * signatures.<br/>
-     * The value presented MUST be a UTF-8 NFKD encoding of the
-     * certificate presented in PEM format.
+     * This value MUST be the DER encoding of the certificate presented.
      * <p>
      * If set, the new value SHALL replace the existing bytes value.
      */
