@@ -1,0 +1,101 @@
+# Protocol Documentation
+<a name="top"></a>
+
+## Table of Contents
+
+- [state/addressbook/node.proto](#state_addressbook_node-proto)
+    - [Node](#com-hedera-hapi-node-state-addressbook-Node)
+  
+    - [NodeStatus](#com-hedera-hapi-node-state-addressbook-NodeStatus)
+  
+- [Scalar Value Types](#scalar-value-types)
+
+
+
+<a name="state_addressbook_node-proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## state/addressbook/node.proto
+
+
+
+<a name="com-hedera-hapi-node-state-addressbook-Node"></a>
+
+### Node
+A single address book node in the network state.
+
+Each node in the network address book SHALL represent a single actual
+consensus node that is eligible to participate in network consensus.
+
+Address book nodes SHALL NOT be _globally_ uniquely identified. A given node
+is only valid within a single realm and shard combination, so the identifier
+for a network node SHALL only be unique within a single realm and shard
+combination.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| node_id | [uint64](#uint64) |  | A consensus node identifier. <p> Node identifiers SHALL be unique _within_ a shard and realm, but a node SHALL NOT, ever, serve multiple shards or realms, therefore the node identifier MAY be repeated _between_ shards and realms. |
+| account_id | [proto.AccountID](#proto-AccountID) |  | An account identifier. <p> This account MUST be owned by the entity responsible for the node.<br/> This account SHALL be charged transaction fees for any transactions that are submitted to the network by this node and fail due diligence checks. |
+| description | [string](#string) |  | A short description of the node. <p> This value, if set, MUST NOT exceed 100 bytes when encoded as UTF-8. |
+| gossip_endpoint | [proto.ServiceEndpoint](#proto-ServiceEndpoint) | repeated | A list of service endpoints for gossip. <p> These endpoints SHALL represent the published endpoints to which other consensus nodes may _gossip_ transactions.<br/> These endpoints SHOULD NOT specify both address and DNS name.<br/> This list SHALL NOT be empty.<br/> This list SHALL NOT contain more than `10` entries.<br/> The first two entries in this list SHALL be the endpoints published to all consensus nodes.<br/> All other entries SHALL be reserved for future use. <p> Each network may have additional requirements for these endpoints. A client MUST check network-specific documentation for those details.<br/> <blockquote>Example<blockquote> Hedera Mainnet _requires_ that address be specified, and does not permit DNS name (FQDN) to be specified.<br/> Mainnet also requires that the first entry be an "internal" IP address and the second entry be an "external" IP address. </blockquote> <blockquote> Solo, however, _requires_ DNS name (FQDN) but also permits address. </blockquote></blockquote> |
+| service_endpoint | [proto.ServiceEndpoint](#proto-ServiceEndpoint) | repeated | A list of service endpoints for gRPC calls. <p> These endpoints SHALL represent the published endpoints to which clients may submit transactions.<br/> These endpoints SHOULD specify address and port.<br/> These endpoints MAY specify a DNS name.<br/> These endpoints SHOULD NOT specify both address and DNS name.<br/> This list SHALL NOT be empty.<br/> This list SHALL NOT contain more than `8` entries. <p> Each network may have additional requirements for these endpoints. A client MUST check network-specific documentation for those details. |
+| gossip_ca_certificate | [bytes](#bytes) |  | A certificate used to sign gossip events. <p> This value SHALL be a certificate of a type permitted for gossip signatures.<br/> This value SHALL be the DER encoding of the certificate presented.<br/> This field is REQUIRED and MUST NOT be empty. |
+| grpc_certificate_hash | [bytes](#bytes) |  | A hash of the node gRPC certificate. <p> This value MAY be used to verify the certificate presented by the node during TLS negotiation for gRPC.<br/> This value MUST be a SHA-384 hash.<br/> The TLS certificate to be hashed SHALL first be in PEM format and SHALL be encoded with UTF-8 NFKD encoding to a stream of bytes provided to the hash algorithm.<br/> This field is OPTIONAL. |
+| weight | [uint64](#uint64) |  | A consensus weight. <p> Each node SHALL have a weight in consensus calculations.<br/> The consensus weight of a node SHALL be calculated based on the amount of HBAR staked to that node.<br/> Consensus SHALL be calculated based on agreement of greater than `2/3` of the total `weight` value of all nodes on the network. |
+
+
+
+
+
+ <!-- end messages -->
+
+
+<a name="com-hedera-hapi-node-state-addressbook-NodeStatus"></a>
+
+### NodeStatus
+An enumeration of the states possible for a consensus node.
+
+Status changes are not always immediate.  Some status changes are completed
+in two steps, first the consensus node entry is marked for a pending
+change. Following the next `freeze` transaction with the field
+`freeze_type` set to `PREPARE_UPGRADE` (herein called a `network upgrade`)
+the node status change completes and the pending state is resolved.
+
+- A node is initially created in a `PENDING_ADDITION` state.
+- Following the next `network upgrade` every node with the status
+  `PENDING_ADDITION` SHALL be added to the live address book, the status
+  SHALL change to `IN_CONSENSUS` and these new nodes SHALL begin to operate
+  as full consensus nodes.
+- If a `updateNode` transaction is processed for a consensus node, the node
+  status SHALL change to the `PENDING_UPDATE` state (unless the status was
+  `PENDING_ADDITION`, see below).
+- Following the next `network upgrade` every node with the status
+  `PENDING_UPDATE` SHALL be modified in network configuration, the status
+  SHALL change to `IN_CONSENSUS` and these modified nodes SHALL continue
+  to operate as full consensus nodes.
+- If a `deleteNode` transaction is processed for a consensus node, the node
+  status SHALL change to the `PENDING_DELETION` state.
+- Following the next `network upgrade` every node with the status
+  `PENDING_DELETE` SHALL be removed from the live address book, and
+  SHALL be removed from state entirely. The node SHALL no longer
+  participate in network consensus.
+- A deleted node SHALL not be present in state. Node identifiers SHALL NOT
+  be re-used and a deleted node CANNOT be "revived".
+
+| Name | Number | Description |
+| ---- | ------ | ----------- |
+| IN_CONSENSUS | 0 | A consensus node in this state is active on the network and participating in network consensus. |
+| PENDING_ADDITION | 1 | A consensus node in this state is newly created but not yet active on the network. <p> Any request to update a node in this state SHALL fail, unless signed by the governing council, and the node SHALL remain in this state if updated.<br/> The node SHALL become active following the next `freeze` transaction with the field `freeze_type` set to `PREPARE_UPGRADE`. |
+| PENDING_DELETION | 2 | A consensus node in this state is subject to a request to delete that node. <p> Any request to update a node in this state SHALL fail, unless signed by the governing council.<br/> The node SHALL be removed from the network following the next `freeze` transaction with the field `freeze_type` set to `PREPARE_UPGRADE`. |
+| PENDING_UPDATE | 3 | A consensus node in this state is subject to a request to update that node.<br/> A consensus node in this state MAY be active on the network, and participating in consensus, if it was active prior to the request to update that node. <p> The node SHALL be modified in the network configuration following the next `freeze` transaction with the field `freeze_type` set to `PREPARE_UPGRADE`. |
+
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+ <!-- end services -->
+
+
+
