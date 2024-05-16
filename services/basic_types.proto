@@ -488,6 +488,21 @@ enum TokenSupplyType {
 }
 
 /**
+ * Types of validation strategies for token keys.
+ */
+enum TokenKeyValidation {
+    /**
+     * Currently the default behaviour. It will perform all token key validations.
+     */
+    FULL_VALIDATION = 0;
+
+    /**
+     * Perform no validations at all for all passed token keys.
+     */
+    NO_VALIDATION = 1;
+}
+
+/**
  * Possible Freeze statuses returned on TokenGetInfoQuery or CryptoGetInfoResponse in
  * TokenRelationship
  */
@@ -632,7 +647,7 @@ message Key {
          * contractID key, which also requires the code in the active message frame belong to the
          * the contract with the given id.)
          */
-        ContractID delegatable_contract_id = 8; 
+        ContractID delegatable_contract_id = 8;
     }
 }
 
@@ -1171,6 +1186,31 @@ enum HederaFunctionality {
      * Get a record for a transaction.
      */
     TransactionGetFastRecord = 87;
+
+    /**
+     * Update the metadata of one or more NFT's of a specific token type.
+     */
+    TokenUpdateNfts = 88;
+
+    /**
+     * Create a node
+     */
+    NodeCreate = 89;
+
+    /**
+     * Update a node
+     */
+    NodeUpdate = 90;
+
+    /**
+     * Delete a node
+     */
+    NodeDelete = 91;
+
+    /**
+     * Get Node information
+     */
+    NodeGetInfo = 92;
 }
 
 /**
@@ -1248,7 +1288,7 @@ message TransactionFeeSchedule {
     /**
      * Resource price coefficients
      */
-    FeeData feeData = 2 [deprecated=true];
+    FeeData feeData = 2 [deprecated = true];
 
     /**
      * Resource price coefficients. Supports subtype price definition.
@@ -1333,6 +1373,13 @@ message ServiceEndpoint {
      * The port of the node
      */
     int32 port = 2;
+
+    /**
+     * A node domain name
+     * This MUST be the fully qualified domain name of the node.
+     * This value MUST NOT be more than 253 characters.
+     */
+    string domain_name = 3;
 }
 
 /**
@@ -1350,18 +1397,18 @@ message NodeAddress {
      * The IP address of the Node with separator & octets encoded in UTF-8.  Usage is deprecated,
      * ServiceEndpoint is preferred to retrieve a node's list of IP addresses and ports
      */
-    bytes ipAddress = 1 [deprecated=true];
+    bytes ipAddress = 1 [deprecated = true];
 
     /**
      * The port number of the grpc server for the node.  Usage is deprecated, ServiceEndpoint is
      * preferred to retrieve a node's list of IP addresses and ports
      */
-    int32 portno = 2 [deprecated=true];
+    int32 portno = 2 [deprecated = true];
 
     /**
      * Usage is deprecated, nodeAccountId is preferred to retrieve a node's account ID
      */
-    bytes memo = 3 [deprecated=true];
+    bytes memo = 3 [deprecated = true];
 
     /**
      * The node's X509 RSA public key used to sign stream files (e.g., record stream 
